@@ -254,10 +254,10 @@ if __name__ == "__main__":
     print("4. Total simulation time: 30 to 600 minutes")
     print("-----------------------------------------------")
 
-    num_riders = int(input("Enterumber of riders [default 4]: ") or 4)
+    num_riders = int(input("Enter number of riders [default 4]: ") or 4)
     sim_time = float(input("Simulation duration in minutes [default 320]: ") or 320)
-    order_interval = float(input("Mean interval between orders [default 5]: ") or 5)
-    delivery_mean = float(input("Average delivery time per order [default 10]: ") or 10)
+    order_interval = float(input("Enter mean interval between orders [default 5]: ") or 5)
+    delivery_mean = float(input("Enter average delivery time per order [default 10]: ") or 10)
 
     base_params = {
         'num_riders': num_riders,
