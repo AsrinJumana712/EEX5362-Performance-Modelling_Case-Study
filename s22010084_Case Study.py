@@ -3,7 +3,6 @@ import random
 import statistics
 import matplotlib.pyplot as plt
 
-# Intermediate Food Delivery Simulation with Scenarios and Metrics
 def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_mean=10, seed=1, scenario_name="Baseline", cancel_prob=0.0):
     random.seed(seed)
     env = simpy.Environment()
@@ -12,7 +11,7 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
     wait_times = []
     delivery_times = []
     queue_history = []
-    
+
     class Customer:
         def __init__(self, cid):
             self.id = cid
@@ -52,7 +51,7 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
     avg_delivery = statistics.mean(delivery_times) if delivery_times else 0
     max_queue = max([q for _, q in queue_history]) if queue_history else 0
     total_orders = len(wait_times)
-    throughput = total_orders / sim_time
+    throughput = total_orders / sim_time  # orders per minute
 
     print(f"\n[{scenario_name}] Simulation complete")
     print(f"Total orders served: {total_orders}")
@@ -102,8 +101,25 @@ def run_experiments():
     plt.tight_layout()
     plt.show()
 
+    # Pie chart: Immediate vs Waited (last scenario example)
+    last_result = results_list[-1]
+    total_orders = len(last_result['wait_times'])
+    waited_count = sum(1 for w in last_result['wait_times'] if w > 0)
+    immediate_count = total_orders - waited_count
+
+    plt.figure(figsize=(6,6))
+    plt.pie(
+        [immediate_count, waited_count],
+        labels=['Immediate', 'Waited'],
+        autopct='%1.1f%%',
+        colors=['green', 'red'],
+        startangle=90,
+        explode=(0.05, 0.05)
+    )
+    plt.title(f'Customers Served Immediately vs Waited - {last_result["scenario_name"]}')
+    plt.tight_layout()
+    plt.show()
+
 # Main
 if __name__ == "__main__":
     run_experiments()
-
-
