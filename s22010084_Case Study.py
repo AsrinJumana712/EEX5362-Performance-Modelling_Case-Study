@@ -3,7 +3,7 @@ import random
 import statistics
 import matplotlib.pyplot as plt
 
-# Intermediate Food Delivery Simulation with Scenarios and Metrics
+# Intermediate Food Delivery Simulation with Key Metrics and Graphs
 def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_mean=10, seed=1, scenario_name="Baseline", cancel_prob=0.0):
     random.seed(seed)
     env = simpy.Environment()
@@ -37,7 +37,6 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
             yield env.timeout(random.expovariate(1.0 / order_interval))
             if env.now >= sim_time:
                 break
-            # Random cancellation
             if random.random() < cancel_prob:
                 print(f"[{scenario_name}] Order {cid} CANCELLED at {env.now:.2f} min")
                 cid += 1
@@ -94,15 +93,29 @@ def run_experiments():
         results = delivery_simulation(**params, scenario_name=name)
         results_list.append(results)
 
+    # =======================
+    # All Graphs in One Section
+    # =======================
+
+    scenario_names = [r['scenario_name'] for r in results_list]
+
     # 1. Avg Wait Time by Scenario
     plt.figure(figsize=(8,5))
-    plt.bar([r['scenario_name'] for r in results_list], [r['avg_wait'] for r in results_list], color='skyblue')
+    plt.bar(scenario_names, [r['avg_wait'] for r in results_list], color='skyblue')
     plt.ylabel('Average Wait Time (min)')
     plt.title('Average Wait Time by Scenario')
     plt.tight_layout()
     plt.show()
 
-    # 2. Pie Chart: Immediate vs Waited (last scenario)
+    # 2. Throughput by Scenario
+    plt.figure(figsize=(8,5))
+    plt.bar(scenario_names, [r['throughput'] for r in results_list], color='lightgreen')
+    plt.ylabel('Throughput (orders/min)')
+    plt.title('Throughput by Scenario')
+    plt.tight_layout()
+    plt.show()
+
+    # 3. Pie Chart: Immediate vs Waited (last scenario)
     last_result = results_list[-1]
     total_customers = len(last_result['wait_times'])
     waited_count = sum(1 for w in last_result['wait_times'] if w > 0)
@@ -121,7 +134,7 @@ def run_experiments():
     plt.tight_layout()
     plt.show()
 
-    # 3. Queue Length Over Time (last scenario)
+    # 4. Queue Length Over Time (last scenario)
     if last_result['queue_history']:
         times, queue_lengths = zip(*last_result['queue_history'])
     else:
@@ -135,6 +148,19 @@ def run_experiments():
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
+    # 5. Key Metrics Bar Chart for All Scenarios
+    metrics = ['avg_wait', 'throughput', 'max_queue']
+    metric_names = ['Average Wait (min)', 'Throughput (orders/min)', 'Max Queue']
+    colors = ['skyblue', 'lightgreen', 'orange', 'pink']
+
+    for i, metric in enumerate(metrics):
+        plt.figure(figsize=(8,5))
+        plt.bar(scenario_names, [r[metric] for r in results_list], color=colors)
+        plt.ylabel(metric_names[i])
+        plt.title(f'{metric_names[i]} by Scenario')
+        plt.tight_layout()
+        plt.show()
 
 # Main
 if __name__ == "__main__":
