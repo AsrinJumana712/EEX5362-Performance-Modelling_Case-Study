@@ -199,8 +199,8 @@ def run_experiments(base_params):
             for log in results['event_log']:
                 print(log)
 
-        # Print Summary Metrics
-        print(f"\n=== Summary for {name} Scenario ===")  # Scenario name clearly displayed
+        # Print only one summary per scenario
+        print(f"\n=== Summary for {name} Scenario ===")
         print(f"Simulation complete (time: {results['sim_time']:.0f} min)")
         print(f"Total customers served: {len(results['wait_times'])}")
         print(f"Average wait time: {results['avg_wait']:.2f} min")
