@@ -25,6 +25,7 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
             service_time = random.expovariate(1.0 / delivery_mean)
             yield env.timeout(service_time)
             customer.delivery_time = env.now - arrival_time
+            delivery_times.append(customer.delivery_time)
             print(f"Order {customer.id} delivered at {env.now:.2f} min (Waited {wait:.2f} min)")
 
     def order_generator(env):
@@ -34,16 +35,15 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
             yield env.timeout(random.expovariate(1.0 / order_interval))
             if env.now >= sim_time:
                 break
-            env.process(process_order(env, cid))
+            env.process(process_order(env, Customer(cid)))  # Pass Customer object
             cid += 1
 
     env.process(order_generator(env))
     env.run(until=sim_time)
 
-    if wait_times:
-        avg_wait = sum(wait_times)/len(wait_times)
-    else:
-        avg_wait = 0
+    # Calculate average wait time
+    avg_wait = sum(wait_times)/len(wait_times) if wait_times else 0
+
     print(f"\nSimulation complete for {sim_time} minutes")
     print(f"Total orders served: {len(wait_times)}")
     print(f"Average wait time: {avg_wait:.2f} min")
