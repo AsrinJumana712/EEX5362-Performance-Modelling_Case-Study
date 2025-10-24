@@ -59,13 +59,6 @@ def delivery_simulation(num_riders=4, sim_time=320, order_interval=5, delivery_m
             yield env.timeout(inter_arrival)  # Wait until next order arrives
             if env.now >= sim_time:   # Stop if simulation time exceeded
                 break
-
-            # Random order cancellation
-            if random.random() < cancel_prob:
-                event_log.append(f"Order {cid} CANCELLED at {env.now:.2f} minutes")
-                cid += 1
-                continue
-
             env.process(process_order(env, Customer(cid))) # Start processing this order
             cid += 1
 
@@ -100,7 +93,6 @@ def delivery_simulation(num_riders=4, sim_time=320, order_interval=5, delivery_m
         'sim_time': sim_time
     }
 
-
 # Enhanced Combined Plots for Report
 def plot_simplified_results(results_list, baseline_name="Baseline"):
     # 1 & 2: Scenario comparison (avg wait and throughput)
@@ -110,7 +102,7 @@ def plot_simplified_results(results_list, baseline_name="Baseline"):
 
     # 1. Avg Wait Time by Scenario
     plt.figure(figsize=(8,5))
-    plt.bar(scenarios, avg_waits, color='skyblue')
+    plt.bar(scenarios, avg_waits, color='dodgerblue')
     plt.ylabel('Avg Wait Time (min)')
     plt.title('Average Wait Time by Scenario')
     plt.tight_layout()
@@ -118,7 +110,7 @@ def plot_simplified_results(results_list, baseline_name="Baseline"):
 
     # 2. Throughput by Scenario
     plt.figure(figsize=(8,5))
-    plt.bar(scenarios, throughputs, color='lightgreen')
+    plt.bar(scenarios, throughputs, color='purple')
     plt.ylabel('Throughput (orders/min)')
     plt.title('Throughput by Scenario')
     plt.tight_layout()
@@ -190,9 +182,9 @@ def plot_simplified_results(results_list, baseline_name="Baseline"):
 # Run Experiments
 def run_experiments(base_params):
     scenarios = [
-        ("Baseline", base_params),  # keep as is
+        ("Baseline", base_params),
         ("Limited Rider Availability", {**base_params, 'num_riders': max(1, base_params['num_riders']//2)}),
-        ("More Riders", {**base_params, 'num_riders': base_params['num_riders']*2}),  # keep as is
+        ("More Riders", {**base_params, 'num_riders': base_params['num_riders']*2}),
         ("Order Cancellation", {**base_params, 'order_interval': base_params['order_interval']*1.2})
     ]
     
@@ -202,10 +194,10 @@ def run_experiments(base_params):
         results = delivery_simulation(**params, scenario_name=name)
         results_list.append((name, results))
 
-        # Print Event Log
-        print(f"\n=== Event Log for {name} Scenario ===")
-        for log in results['event_log']:
-            print(log)
+        if name == "Baseline":  # Only print summary for baseline
+            print(f"\n=== Event Log for {name} Scenario ===")
+            for log in results['event_log']:
+                print(log)
 
         # Print Summary Metrics
         print(f"\nSimulation complete (time: {results['sim_time']:.0f} min)")
