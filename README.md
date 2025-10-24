@@ -92,8 +92,9 @@ Please ensure code follows PEP 8 style guidelines and includes tests or document
 
 ## Author
 
-- A.R.A. Jumana
+- AR. Asrin Jumana
 - Software Engineering Undergraduate
 - Open University of Sri Lanka
+
 
 
