@@ -10,19 +10,22 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
 
     wait_times = []
     delivery_times = []
+    
+    class Customer:
+        def __init__(self, cid):
+            self.id = cid
+            self.delivery_time = 0
 
-    def customer(env, cid):
-        """Simple customer process."""
-        arrival = env.now
-        with riders.request() as req:
-            yield req
-            start_service = env.now
-            wait = start_service - arrival
+    def process_order(env, customer):
+        arrival_time = env.now
+        with riders.request() as request:
+            yield request
+            wait = env.now - arrival_time
             wait_times.append(wait)
-
             service_time = random.expovariate(1.0 / delivery_mean)
             yield env.timeout(service_time)
-            delivery_times.append(wait + service_time)
+            customer.delivery_time = env.now - arrival_time
+            print(f"Order {customer.id} delivered at {env.now:.2f} min (Waited {wait:.2f} min)")
 
     def order_generator(env):
         """Generate customers arriving at random intervals."""
@@ -31,35 +34,20 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
             yield env.timeout(random.expovariate(1.0 / order_interval))
             if env.now >= sim_time:
                 break
-            env.process(customer(env, cid))
+            env.process(process_order(env, cid))
             cid += 1
 
     env.process(order_generator(env))
     env.run(until=sim_time)
 
-    # --- Simple metrics ---
-    total_orders = len(wait_times)
-    avg_wait = statistics.mean(wait_times) if wait_times else 0
-    avg_delivery = statistics.mean(delivery_times) if delivery_times else 0
-    throughput = total_orders / sim_time  # orders per minute
+    if wait_times:
+        avg_wait = sum(wait_times)/len(wait_times)
+    else:
+        avg_wait = 0
+    print(f"\nSimulation complete for {sim_time} minutes")
+    print(f"Total orders served: {len(wait_times)}")
+    print(f"Average wait time: {avg_wait:.2f} min")
 
-    print("=== Basic Food Delivery Simulation ===")
-    print(f"Total orders served: {total_orders}")
-    print(f"Average wait time: {avg_wait:.2f} minutes")
-    print(f"Average delivery time: {avg_delivery:.2f} minutes")
-    print(f"Throughput: {throughput:.3f} orders/minute")
-
-# Run simulation
+# Run the beginner simulation
 if __name__ == "__main__":
-    print("Welcome to the Food Delivery Simulation (Basic)")
-    riders = int(input("Enter number of riders [default 2]: ") or 2)
-    sim_time = float(input("Enter total simulation time [default 100]: ") or 100)
-    order_interval = float(input("Enter mean order interval [default 5]: ") or 5)
-    delivery_mean = float(input("Enter mean delivery time [default 10]: ") or 10)
-
-    delivery_simulation(
-        num_riders=riders,
-        sim_time=sim_time,
-        order_interval=order_interval,
-        delivery_mean=delivery_mean
-    )
+    delivery_simulation()
