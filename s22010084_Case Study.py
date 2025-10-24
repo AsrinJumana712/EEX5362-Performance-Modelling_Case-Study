@@ -3,6 +3,7 @@ import random
 import statistics
 import matplotlib.pyplot as plt
 
+# Intermediate Food Delivery Simulation with Scenarios and Metrics
 def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_mean=10, seed=1, scenario_name="Baseline", cancel_prob=0.0):
     random.seed(seed)
     env = simpy.Environment()
@@ -71,7 +72,7 @@ def delivery_simulation(num_riders=2, sim_time=100, order_interval=5, delivery_m
         'scenario_name': scenario_name
     }
 
-# Run multiple scenarios
+# Run multiple scenarios and plot results
 def run_experiments():
     base_params = {
         'num_riders': 2,
@@ -93,7 +94,7 @@ def run_experiments():
         results = delivery_simulation(**params, scenario_name=name)
         results_list.append(results)
 
-    # Plot Avg Wait Time by Scenario
+    # 1. Avg Wait Time by Scenario
     plt.figure(figsize=(8,5))
     plt.bar([r['scenario_name'] for r in results_list], [r['avg_wait'] for r in results_list], color='skyblue')
     plt.ylabel('Average Wait Time (min)')
@@ -101,11 +102,11 @@ def run_experiments():
     plt.tight_layout()
     plt.show()
 
-    # Pie chart: Immediate vs Waited (last scenario example)
+    # 2. Pie Chart: Immediate vs Waited (last scenario)
     last_result = results_list[-1]
-    total_orders = len(last_result['wait_times'])
+    total_customers = len(last_result['wait_times'])
     waited_count = sum(1 for w in last_result['wait_times'] if w > 0)
-    immediate_count = total_orders - waited_count
+    immediate_count = total_customers - waited_count
 
     plt.figure(figsize=(6,6))
     plt.pie(
@@ -117,6 +118,21 @@ def run_experiments():
         explode=(0.05, 0.05)
     )
     plt.title(f'Customers Served Immediately vs Waited - {last_result["scenario_name"]}')
+    plt.tight_layout()
+    plt.show()
+
+    # 3. Queue Length Over Time (last scenario)
+    if last_result['queue_history']:
+        times, queue_lengths = zip(*last_result['queue_history'])
+    else:
+        times, queue_lengths = ([0], [0])
+
+    plt.figure(figsize=(8,5))
+    plt.step(times, queue_lengths, where='post', color='blue')
+    plt.xlabel('Time (min)')
+    plt.ylabel('Queue Length')
+    plt.title(f'Queue Length Over Time - {last_result["scenario_name"]}')
+    plt.grid(True)
     plt.tight_layout()
     plt.show()
 
