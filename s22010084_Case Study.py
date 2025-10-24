@@ -200,7 +200,8 @@ def run_experiments(base_params):
                 print(log)
 
         # Print Summary Metrics
-        print(f"\nSimulation complete (time: {results['sim_time']:.0f} min)")
+        print(f"\n=== Summary for {name} Scenario ===")  # Scenario name clearly displayed
+        print(f"Simulation complete (time: {results['sim_time']:.0f} min)")
         print(f"Total customers served: {len(results['wait_times'])}")
         print(f"Average wait time: {results['avg_wait']:.2f} min")
         print(f"Throughput: {results['throughput']:.3f} cust/min")
@@ -260,3 +261,5 @@ if __name__ == "__main__":
     }
 
     run_experiments(base_params)
+
+print("\n=== All simulations completed! Thank you for using the Food Delivery Simulation. ===")
