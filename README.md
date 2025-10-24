@@ -50,7 +50,7 @@ print("Libraries installed successfully!")
 1. Run the Simulation:
 Execute the script directly
 ```javascript
-python s22010084_Case Study.py
+python s22010084_Case_Study.py
 ```
 
 2. Configure Parameters:
@@ -95,4 +95,5 @@ Please ensure code follows PEP 8 style guidelines and includes tests or document
 - A.R.A. Jumana
 - Software Engineering Undergraduate
 - Open University of Sri Lanka
+
 
